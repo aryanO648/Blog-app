@@ -64,3 +64,5 @@ class BlogSearchAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response({"error": "Please provide a search query"}, status=status.HTTP_400_BAD_REQUEST)
+        
+#update till now
