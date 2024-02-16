@@ -66,3 +66,25 @@ class BlogSearchAPIView(APIView):
             return Response({"error": "Please provide a search query"}, status=status.HTTP_400_BAD_REQUEST)
         
 #update till now
+
+# feature for no of likes and views comments on that perticular blog
+
+class BlogDetailsAPIView(APIView):
+    permission_classes = [IsAuthenticated]  
+    def get(self, request, blog_id):
+        try:
+            blog = Blog.objects.get(pk=blog_id)
+        except Blog.DoesNotExist:
+            return Response({"error": "Blog post does not exist"}, status=status.HTTP_404_NOT_FOUND)
+        likes_count = Like.objects.filter(blog=blog).count()
+        comments_count = Comment.objects.filter(blog=blog).count()
+        author_comments = Comment.objects.filter(blog=blog, user=blog.author)
+
+        # Serialize the blog details along with counts and author's comments
+        serializer = BlogSerializer(blog)
+        data = serializer.data
+        data['likes_count'] = likes_count
+        data['comments_count'] = comments_count
+        data['author_comments'] = CommentSerializer(author_comments, many=True).data
+
+        return Response(data, status=status.HTTP_200_OK)
