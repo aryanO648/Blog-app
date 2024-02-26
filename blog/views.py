@@ -7,6 +7,8 @@ from user_auth.models import User_login
 from user_auth.serializers import RegistrationSerializer, LoginSerializer
 from rest_framework.permissions import IsAuthenticated
 from .models import Blog, Like, Comment
+from django.core.mail import send_mail
+
 
 class BlogAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -16,6 +18,13 @@ class BlogAPIView(APIView):
         if serializer.is_valid():
             serializer.save(author=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # send_mail(
+        #     "Registration successful",
+        #     "You have successfully registered",
+        #     "from@example.com",
+        #     ["to@example.com"],
+        #     fail_silently=False,
+        # )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     def get(self, request):
         blogs = Blog.objects.all()

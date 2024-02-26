@@ -134,3 +134,10 @@ REST_FRAMEWORK = {
 }
 
 AUTH_USER_MODEL = 'user_auth.User_login'
+
+#added by me
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_HOST_USER = 'example@gmail.com'
+# EMAIL_HOST_PASSWORD = 'example@123'
+# EMAIL_USE_TLS = True
