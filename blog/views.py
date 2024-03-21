@@ -18,16 +18,10 @@ class BlogAPIView(APIView):
         if serializer.is_valid():
             serializer.save(author=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        # send_mail(
-        #     "Registration successful",
-        #     "You have successfully registered",
-        #     "from@example.com",
-        #     ["to@example.com"],
-        #     fail_silently=False,
-        # )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     def get(self, request):
-        blogs = Blog.objects.all()
+        blogs = Blog.objects.all().select_related('like')
         serializer = BlogSerializer(blogs, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -79,21 +73,14 @@ class BlogSearchAPIView(APIView):
 # feature for no of likes and views comments on that perticular blog
 
 class BlogDetailsAPIView(APIView):
-    permission_classes = [IsAuthenticated]  
+    permission_classes = [IsAuthenticated]
+
     def get(self, request, blog_id):
         try:
             blog = Blog.objects.get(pk=blog_id)
         except Blog.DoesNotExist:
             return Response({"error": "Blog post does not exist"}, status=status.HTTP_404_NOT_FOUND)
-        likes_count = Like.objects.filter(blog=blog).count()
-        comments_count = Comment.objects.filter(blog=blog).count()
-        author_comments = Comment.objects.filter(blog=blog, user=blog.author)
 
-        # Serialize the blog details along with counts and author's comments
+        # Serialize the blog details along with likes and comments
         serializer = BlogSerializer(blog)
-        data = serializer.data
-        data['likes_count'] = likes_count
-        data['comments_count'] = comments_count
-        data['author_comments'] = CommentSerializer(author_comments, many=True).data
-
-        return Response(data, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
